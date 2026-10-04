@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
+    <script src="/socket.io/socket.io.js" defer></script>
+    <script src="script.js" defer></script>
+    <title>Pantalla Interactiva</title>
+</head>
+
+<body>
+    <div id="puntero"></div>
+    <button id="btn-volver" style="display: none;">Volver</button>
+
+    <div id="container-split">
+        <div id="section-vestuario" class="split-section">
+            <h1 class="title">Vestuario</h1>
+
+            <div id="modulo-outfit" class="voz-container">
+                <h2>Espejo Inteligente</h2>
+                <div id="camara-outfit"
+                    style="margin: 10px 0; border-radius: 8px; overflow: hidden; display: flex; justify-content: center;">
+                </div>
+                <button id="btn-outfit" class="btn-voice">👗 Comprobar mi Outfit</button>
+                <div id="clima-info"
+                    style="margin-top: 15px; font-size: 1rem; color: #6b503b; background: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 8px; text-align: left; display: inline-block;">
+                    <p style="margin: 5px 0;">📍 Ubicación: <span id="location"
+                            style="font-weight: bold;">Obteniendo...</span></p>
+                    <p style="margin: 5px 0;">🌡️ Temp: <span id="temperature" style="font-weight: bold;">--</span> °C |
+                        💨 Viento: <span id="wind" style="font-weight: bold;">--</span> km/h</p>
+                </div>
+            </div>
+
+            <!-- CHAT BOT (TRANSFORMERS.JS) -->
+            <button id="btn-toggle-chat">💬 Asistente IA Gimnasio</button>
+
+            <div id="chat-bot-panel" style="display: none;">
+                <h2>Asistente Virtual</h2>
+                <div id="chat-messages"
+                    style="flex: 1; overflow-y: auto; text-align: left; background: #FFF9EB; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 2px solid #D4A373; font-size: 1rem; color: #4A3F35; display: flex; flex-direction: column; gap: 10px;">
+                    <div
+                        style="align-self: flex-start; background: #EAD8C3; padding: 8px 12px; border-radius: 12px; border-bottom-left-radius: 2px;">
+                        ¡Hola! Soy tu asistente de gimnasio. Pregúntame sobre rutinas, ejercicios o nutrición.</div>
+                </div>
+                <div style="display: flex; gap: 8px; height: 45px; margin-bottom: 10px;">
+                    <input type="text" id="chat-input" placeholder="Pregunta algo..."
+                        style="flex: 1; padding: 10px 15px; border-radius: 8px; border: 2px solid #D4A373; outline: none; font-size: 1rem; color: #4A3F35;">
+                    <button id="btn-send-chat"
+                        style="background: #A0522D; color: white; border: none; padding: 0 20px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem;">Enviar</button>
+                </div>
+                <!-- Botón audio pendiente de desarrollar -->
+                <div id="btn-audio-wrap" style="position: relative; display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                    <button id="btn-send-audio" class="btn-audio-pending" title="Próximamente" disabled>
+                        🎤 Enviar Audio
+                    </button>
+                    <span class="audio-pending-badge">🚧 Pendiente</span>
+                </div>
+                <p id="chat-status" style="font-size: 0.85rem; color: #888; text-align: center; margin: 0;">Presiona
+                    Enviar para inicializar IA interior.</p>
+            </div>
+            <!-- FIN CHAT BOT -->
+
+        </div>
+
+        <div id="section-gym" class="split-section">
+            <h1 class="title">Gym</h1>
+
+            <!-- Layout de dos columnas dentro del gym expandido -->
+            <div id="gym-layout" class="gym-two-col" style="display:none;">
+
+                <!-- COLUMNA IZQUIERDA: Módulos de ejercicio -->
+                <div id="gym-col-left">
+
+                    <!-- Selector modo: Gym / Running -->
+                    <div id="gym-mode-tabs">
+                        <button id="tab-gym" class="gym-tab active" onclick="window.switchGymTab('gym')">🏋️ Gym</button>
+                        <button id="tab-running" class="gym-tab" onclick="window.switchGymTab('running')">🏃 Running</button>
+                    </div>
+
+                    <!-- Módulo Voz (oculto, usado por voz.js en background) -->
+                    <div id="modulo-voz" class="voz-container voz-inline" style="display:none;">
+                        <h2>Módulo de Voz</h2>
+                        <button id="btn-escuchar" class="btn-voice">Iniciar Voz</button>
+                        <button id="btn-proximidad" class="btn-voice">🚶‍♀️ Simular Llegada a Máquina</button>
+                    </div>
+
+                    <!-- Módulo Selección Ejercicios (visible por defecto en Gym) -->
+                    <div id="modulo-ejercicios" class="voz-container voz-inline">
+                        <h2>Selecciona Ejercicio</h2>
+                        <div class="ejercicios-grid">
+
+                            <button id="btn-sentadilla" class="btn-voice btn-ejercicio"
+                                onclick="window.seleccionarEjercicio('Sentadilla')">
+                                <image src="assets/sentadilla.png"
+                                    style="width: 100%; height: 90px; object-fit: cover; border-radius: 6px; margin-bottom: 8px;">
+                                </image>
+                                <span>Sentadilla</span>
+                            </button>
+
+                            <button id="btn-flexiones" class="btn-voice btn-ejercicio"
+                                onclick="window.seleccionarEjercicio('Flexiones')">
+                                <image src="assets/flexiones.png"
+                                    style="width: 100%; height: 90px; object-fit: cover; border-radius: 6px; margin-bottom: 8px;">
+                                </image>
+                                <span>Flexiones</span>
+                            </button>
+
+                            <button id="btn-cuadriceps" class="btn-voice btn-ejercicio"
+                                onclick="window.seleccionarEjercicio('Extensión de Cuádriceps')">
+                                <image src="assets/cuadriceps.png"
+                                    style="width: 100%; height: 90px; object-fit: cover; border-radius: 6px; margin-bottom: 8px;">
+                                </image>
+                                <span>Extensión Cuád.</span>
+                            </button>
+
+                            <button id="btn-laterales" class="btn-voice btn-ejercicio"
+                                onclick="window.seleccionarEjercicio('Elevaciones Laterales')">
+                                <image src="assets/elevaciones.png"
+                                    style="width: 100%; height: 90px; object-fit: cover; border-radius: 6px; margin-bottom: 8px;">
+                                </image>
+                                <span>Elev. Laterales</span>
+                            </button>
+
+                            <button id="btn-biceps" class="btn-voice btn-ejercicio"
+                                onclick="window.seleccionarEjercicio('Curl de Bíceps')">
+                                <image src="assets/biceps.png"
+                                    style="width: 100%; height: 90px; object-fit: cover; border-radius: 6px; margin-bottom: 8px;">
+                                </image>
+                                <span>Curl Bíceps</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Módulo ejecución en tiempo real -->
+                    <div id="modulo-ejecucion" class="voz-container voz-inline" style="display: none; padding: 30px;">
+                        <h2 id="ejecucion-title" style="font-size: 2rem; text-transform: uppercase;">Ejercicio</h2>
+                        <div style="display: flex; gap: 30px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                            <div class="anim-container"
+                                style="width: 160px; height: 160px; border-radius: 12px; border: 3px solid #D4A373; overflow: hidden; display: flex; justify-content: center; align-items: center; background: #FFF9EB;">
+                                <video id="ejecucion-video" src="" autoplay loop muted
+                                    style="width: 100%; height: 100%; object-fit: cover;"></video>
+                            </div>
+                            <div style="text-align: left; font-size: 1.3rem;">
+                                <p style="margin-bottom: 10px;">⏱️ Tiempo: <span id="ejecucion-tiempo"
+                                        style="font-weight: 700; color: #A0522D; font-size: 1.6rem;">00:00</span></p>
+                                <p style="margin-bottom: 10px;">🔁 Reps: <span id="ejecucion-reps"
+                                        style="font-weight: 700; color: #4A3F35; font-size: 1.6rem;">0</span></p>
+                                <p>📊 Series: <span id="ejecucion-series"
+                                        style="font-weight: 700; color: #8C7B6B; font-size: 1.4rem;">0</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MÓDULO RUNNING (pendiente) -->
+                    <div id="modulo-running" class="voz-container voz-inline" style="display: none;">
+                        <div class="running-pending">
+                            <span class="running-icon">🏃</span>
+                            <h2>Running</h2>
+                            <div class="pending-badge">🚧 Pendiente de desarrollar</div>
+                            <p class="running-desc">Próximamente podrás registrar tus sesiones de running, ver estadísticas de ritmo, distancia y calorías quemadas.</p>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- FIN COLUMNA IZQUIERDA -->
+
+                <!-- COLUMNA DERECHA: Pulso + Lista de ejercicios -->
+                <div id="gym-col-right">
+
+                    <!-- Módulo Pulso (integrado en columna derecha, sin overlay) -->
+                    <div id="modulo-pulso" style="display: none; flex-direction: column; gap: 8px; background: #FFF9EB; border: 2px solid #D4A373; border-radius: 8px; padding: 14px; margin-bottom: 14px;">
+                        <h2 style="font-size: 1rem; text-align: center; color: #4A3F35; margin: 0;">❤️ Pulso: <span id="valor-pulso">80</span> bpm</h2>
+                        <input type="range" id="slider-pulso" min="60" max="180" value="80" style="width: 100%; cursor: pointer;">
+                        <div id="alerta-pulso" style="color: #D32F2F; font-weight: bold; display: none; font-size: 0.85rem; text-align: center;">⚠️ Pulsaciones altas</div>
+                    </div>
+
+                    <!-- Panel lista de ejercicios -->
+                    <div id="panel-lista-ejercicios">
+                        <div class="lista-header">
+                            <h3>📋 Mi Lista de Ejercicios</h3>
+                        </div>
+
+                        <!-- Formulario añadir ejercicio -->
+                        <div class="add-ejercicio-form">
+                            <input type="text" id="input-nombre-ejercicio" placeholder="Nombre del ejercicio..." />
+                            <div class="add-form-row">
+                                <input type="number" id="input-series-ejercicio" placeholder="Series" min="1" max="20" value="3" />
+                                <button id="btn-add-ejercicio" onclick="window.addEjercicioLista()">+ Añadir</button>
+                            </div>
+                        </div>
+
+                        <!-- Lista de ejercicios -->
+                        <ul id="lista-ejercicios-ul"></ul>
+
+                        <div id="lista-empty-msg" class="lista-empty">
+                            <span>✏️ Añade ejercicios a tu sesión</span>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- FIN COLUMNA DERECHA -->
+
+            </div>
+            <!-- FIN gym-layout -->
+
+        </div>
+    </div>
+
+    <script src="voz.js" defer></script>
+    <script type="module" src="chat.js" defer></script>
+</body>
+
+</html>

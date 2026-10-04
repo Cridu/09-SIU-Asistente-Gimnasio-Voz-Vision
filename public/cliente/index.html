@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Mediapipe Pose -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+
+    <script src="/socket.io/socket.io.js" defer></script>
+    <script src="onboarding.js" defer></script>
+    <script src="script.js" defer></script>
+    <title>Mando a Distancia</title>
+</head>
+<body>
+    <div id="login-area" class="login-container">
+        <h1>Bienvenido</h1>
+        <div class="login-form">
+            <input type="text" id="username" placeholder="Nombre de usuario" class="login-input">
+            <input type="password" id="password" placeholder="Contraseña" class="login-input">
+            <div id="login-message" class="login-msg"></div>
+            <button id="btn-login" class="action-btn">Iniciar Sesión</button>
+            <button id="btn-register" class="action-btn" style="background-color: #A0522D;">Registrarse</button>
+        </div>
+    </div>
+
+    <div id="control-area" style="display: none;">
+        <h1>Control Remoto</h1>
+        <div id="trackpad">
+            <p>Mueve el dedo aquí para apuntar</p>
+        </div>
+        <div class="actions">
+            <button id="btn-click" class="action-btn">CLICK</button>
+            <button id="btn-center" class="action-btn">CENTRAR PUNTERO</button>
+        </div>
+    </div>
+
+    <!-- Nueva Área de Cámara para el Gimnasio -->
+    <div id="camera-area" class="camera-container" style="display: none;">
+        <h1 id="exercise-title" class="camera-title">Ejercicio</h1>
+        
+        <div class="video-container">
+            <video id="input_video" style="display: none;" playsinline></video>
+            <canvas id="output_canvas" class="output-canvas"></canvas>
+            <div id="rep-counter" class="camera-counter rep-counter-pos">Reps: 0</div>
+            <div id="series-counter" class="camera-counter series-counter-pos">Series: 0</div>
+            <div id="status-message" class="status-badge">Listo</div>
+        </div>
+        
+        <div class="camera-actions">
+            <button id="btn-empezar-serie" class="action-btn btn-empezar">Empezar Serie</button>
+            <button id="btn-terminar-serie" class="action-btn btn-terminar" style="display: none;">Terminar Serie</button>
+            <button id="btn-terminar-maquina" class="action-btn btn-maquina">Terminar Máquina</button>
+        </div>
+    </div>
+</body>
+</html>

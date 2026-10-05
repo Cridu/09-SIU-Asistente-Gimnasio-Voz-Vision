@@ -55,7 +55,11 @@ node server.js
 Con Google Chrome, y con el servidor corriendo en `http://localhost:3000`:
 
 - **Pantalla:** abrir [http://localhost:3000/pantalla/index.html](http://localhost:3000/pantalla/index.html)
+  <img width="653" height="728" alt="Captura de pantalla 2026-10-05 133213" src="https://github.com/user-attachments/assets/ba7b723d-ee4e-4933-afd3-c37ed3f0ceee" />
+
 - **Mando (móvil):** abrir [http://localhost:3000/cliente/index.html](http://localhost:3000/cliente/index.html) (usando el cable con DevTools/remote debugging, o accediendo desde el móvil a la IP local del servidor)
+<img width="525" height="904" alt="image" src="https://github.com/user-attachments/assets/b26d0e78-954b-43cf-a1a4-75198d064792" />
+<img width="525" height="672" alt="image" src="https://github.com/user-attachments/assets/5847243d-3998-43d0-8cc3-a27b9284e4b9" />
 
 ### Probar el modo Gimnasio y Vestuario sin el mando
 
